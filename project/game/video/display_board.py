@@ -1,4 +1,5 @@
 import constants
+import arcade
 from display import Display
 
 
