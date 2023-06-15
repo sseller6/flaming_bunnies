@@ -19,3 +19,18 @@ SCREEN_HEIGHT = (TILE_HEIGHT + TILE_MARGIN) * ROW_COUNT + TILE_MARGIN
 
 SCREEN_1_TITLE = "Screen 1"
 BACKGROUND = arcade.color.WHITE
+
+# Entity images
+KNIGHT_IMAGE = r"Planning/art/players/knight_1.png"
+KNIGHT_WIDTH = 20
+KNIGHT_HEIGHT = 20
+
+WIZARD_IMAGE = r"Planning/art/players/mage_1.png"
+WIZARD_WIDTH = 20
+WIZARD_HEIGHT = 20
+
+ARCHER_IMAGE = r"Planning/art/players/archer_1.png"
+ARCHER_WIDTH = 20
+ARCHER_HEIGHT = 20
+
+CHARACTER_SCALING  = 0.1

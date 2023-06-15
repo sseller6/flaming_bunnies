@@ -2,14 +2,10 @@ from constants import *
 import arcade
 
 
-
-class Display(arcade.Window):
-    def __init__(self,title, background, width, height):
-        super().__init__(width, height, title)
-        
-        arcade.set_background_color(background)
-
-        
+# Do the math to figure out our screen dimensions
+SCREEN_WIDTH = (WIDTH + MARGIN) * COLUMN_COUNT + MARGIN
+SCREEN_HEIGHT = (HEIGHT + MARGIN) * ROW_COUNT + MARGIN
+SCREEN_TITLE = "Array Backed Grid Buffered Example"
 
     def on_draw(self):
         self.clear()
