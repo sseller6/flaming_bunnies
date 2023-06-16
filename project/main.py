@@ -27,7 +27,7 @@ SCREEN_TITLE = "Checkers"
 
 
 #piece images
-p1_img = r"project\images\possible move.png"
+p1_img = r"project\images\redPiece.png"
 p2_img = r"project\images\tanPiece.png"
 move_img = r"project\images\possible move.png"
 SPRITE_SCALING_PIECE = .5
