@@ -1,4 +1,5 @@
 from typing import Optional
+import PIL
 import arcade
 from arcade import Texture
 
@@ -30,6 +31,9 @@ SCREEN_TITLE = "Checkers"
 p1_img = r"project\images\redPiece.png"
 p2_img = r"project\images\tanPiece.png"
 move_img = r"project\images\possible move.png"
+
+RED_QUEEN = r"project\images\redQueen.png"
+TAN_QUEEN = r"project\images\tanQueen.png"
 SPRITE_SCALING_PIECE = .5
 
 class Piece(arcade.Sprite):
@@ -38,7 +42,7 @@ class Piece(arcade.Sprite):
     #This init is just default init for arcade.sprite
     def __init__(self, filename: str = None, scale: float = 1, image_x: float = 0, image_y: float = 0, image_width: float = 0, image_height: float = 0, center_x: float = 0, center_y: float = 0, repeat_count_x: int = 1, repeat_count_y: int = 1, flipped_horizontally: bool = False, flipped_vertically: bool = False, flipped_diagonally: bool = False, hit_box_algorithm: str | None = "Simple", hit_box_detail: float = 4.5, texture: Texture = None, angle: float = 0):
         super().__init__(filename, scale, image_x, image_y, image_width, image_height, center_x, center_y, repeat_count_x, repeat_count_y, flipped_horizontally, flipped_vertically, flipped_diagonally, hit_box_algorithm, hit_box_detail, texture, angle)
-
+        self.is_queen = False
 
     #This was an attempt for implementing the movement of pieces.
     # def update(self):
@@ -208,38 +212,54 @@ class Checkers(arcade.Window):
                     #find which square the player clicked on
                     move_to_index = find_nearest_piece(self.possible_move_list, column, row)
                     #if it's player 1 turn
+                    cont = True
                     if self.is_p1_turn:
-                        #if the player clicked on the left one
-                        if self.possible_move_list.sprite_list[move_to_index].center_x > self.p1_list.sprite_list[self.piece_index].center_x:
-                            # move the piece to the clicked location
-                            self.p1_grid[row][column] = self.p1_grid[row - 1][column - 1]
-                            # and clear where the piece used to be.
-                            self.p1_grid[row - 1][column - 1] = "empty"
-                        #else, the player clicked on the right one
-                        else:
-                            #Move the piece to the clicked position
-                            self.p1_grid[row][column] = self.p1_grid[row - 1][column + 1] 
-                            #and clear where the piece used to be.
-                            self.p1_grid[row - 1][column + 1] = "empty"
+                        for r in range(COLUMN_COUNT):
+                            for c in range(ROW_COUNT):
+                                if cont == True:
+                                    if self.p1_grid[r][c] == self.p1_list[self.piece_index]:
+                                        if column  - c > 1:
+                                            to_delete = self.p2_grid[row -1][column - 1]
+                                            self.p2_list.remove(to_delete)
+                                            self.p2_grid[row -1][column - 1] = "empty"
+                                        elif c - column > 1:
+                                            to_delete = self.p2_grid[row -1][c - 1]
+                                            self.p2_list.remove(to_delete)
+                                            self.p2_grid[row -1][c - 1] = "empty"
+                                            
+
+                                        self.p1_grid[row][column] = self.p1_grid[r][c]
+                                        self.p1_grid[r][c] = "empty"
+                                        # if row == 7:
+                                        #     self.make_queen(self.piece_index)
+                                        cont = False
+                                    
 
                         #update the new centers for the piece.
                         self.p1_list.sprite_list[self.piece_index].center_x = self.possible_move_list.sprite_list[move_to_index].center_x
                         self.p1_list.sprite_list[self.piece_index].center_y = self.possible_move_list.sprite_list[move_to_index].center_y
+                        
                         #switch player turn.
                         self.is_p1_turn = False
+                    
                     else:
-                        #if the player clicked on the left one
-                        if self.possible_move_list.sprite_list[move_to_index].center_x > self.p1_list.sprite_list[self.piece_index].center_x:
-                            # move the piece to the clicked location
-                            self.p2_grid[row][column] = self.p2_grid[row + 1][column - 1]
-                            # and clear where the piece used to be.
-                            self.p1_grid[row + 1][column - 1] = "empty"
-                        #else, the player clicked on the right one
-                        else:
-                            #Move the piece to the clicked position
-                            self.p2_grid[row][column] = self.p2_grid[row + 1][column + 1] 
-                            #and clear where the piece used to be.
-                            self.p2_grid[row + 1][column + 1] = "empty"
+                        for r in range(COLUMN_COUNT):
+                            for c in range(ROW_COUNT):
+                                if cont == True:
+                                    if self.p2_grid[r][c] == self.p2_list[self.piece_index]:
+                                        if column  - c > 1:
+                                            to_delete = self.p1_grid[row  + 1][column - 1]
+                                            self.p1_list.remove(to_delete)
+                                            self.p1_grid[row + 1][column - 1] = "empty"
+                                        elif c - column > 1:
+                                            to_delete = self.p1_grid[row + 1][c - 1]
+                                            self.p1_list.remove(to_delete)
+                                            self.p1_grid[row + 1][c - 1] = "empty"
+                                        self.p2_grid[row][column] = self.p2_grid[r][c]
+                                        self.p2_grid[r][c] = "empty"
+                                        # if row == 0:
+                                        #     self.make_queen(self.piece_index)
+                                        cont = False
 
                         #update the new centers for the piece.
                         self.p2_list.sprite_list[self.piece_index].center_x = self.possible_move_list.sprite_list[move_to_index].center_x
@@ -269,8 +289,7 @@ class Checkers(arcade.Window):
                 self.piece_index = find_nearest_piece(self.p1_list.sprite_list, column, row)
                 
                 #reveal the usual two possible moves
-                self.possible_move_grid[row + 1][column + 1].visible = True
-                self.possible_move_grid[row + 1][column - 1].visible = True
+                self.check_possible_moves(row, column)
             
             #if there is a player 2 piece at the clicked location and it's player 2's turn
             elif self.p2_grid[row][column] != "empty" and self.is_p1_turn == False:
@@ -280,8 +299,7 @@ class Checkers(arcade.Window):
                 self.piece_index = find_nearest_piece(self.p2_list.sprite_list, column, row)
                 
                 #reveal the usual two possible moves
-                self.possible_move_grid[row - 1][column + 1].visible = True
-                self.possible_move_grid[row - 1][column - 1].visible = True
+                self.check_possible_moves(row, column)
         
     #update the lists. this just keeps things flowing nice.
     def on_update(self, delta_time):
@@ -289,7 +307,108 @@ class Checkers(arcade.Window):
         self.p2_list.update()
         self.possible_move_list.update()
 
-# function to find the index of the piece nearest to where the click occurred. 
+    def check_possible_moves(self, row, column):
+        
+        if self.is_p1_turn == True:
+            move_1_row = row + 1
+            move_1_col = column - 1
+            move_2_row = row + 1
+            move_2_col = column + 1
+            if move_1_row > 7:
+                num_jumps_1 = 2
+                num_jumps_2 = 2
+            if move_1_col >=0:
+                num_jumps_1 = 0
+            else:
+                num_jumps_1 = 2
+            if move_2_col <=7:
+                num_jumps_2 = 0
+            else:
+                num_jumps_2 = 2
+            
+            for n in range(2):
+                for i in self.p1_list:
+                    if move_1_row < 8 and move_1_col >=0 and move_2_col <= 7:
+                        if i == self.p1_grid[move_1_row][move_1_col]:
+                            num_jumps_1 = 2
+                    
+                        elif i == self.p1_grid[move_2_row][move_2_col]:
+                            num_jumps_2 = 2
+                for i in self.p2_list:
+                    if move_1_row < 8: 
+                        if move_1_col >=0:
+                            if i == self.p2_grid[move_1_row][move_1_col]:
+                                move_1_col -= 1
+                                move_1_row += 1
+                                num_jumps_1 += 1
+                        if move_2_col <= 7:
+                            if i == self.p2_grid[move_2_row][move_2_col]:
+                                move_2_col += 1
+                                move_2_row += 1
+                                num_jumps_2 += 1
+            if num_jumps_1 < 2 and move_1_col >= 0:
+                self.possible_move_grid[move_1_row][move_1_col].visible = True
+            if num_jumps_2 < 2 and move_2_col <= 7:
+                self.possible_move_grid[move_2_row][move_2_col].visible = True
+
+        else:
+            move_1_row = row - 1
+            move_1_col = column - 1
+            move_2_row = row - 1
+            move_2_col = column + 1
+            if move_1_row < 0:
+                num_jumps_1 = 2
+                num_jumps_2 = 2
+            if move_1_col >=0:
+                num_jumps_1 = 0
+            else:
+                num_jumps_1 = 2
+            if move_2_col <=7:
+                num_jumps_2 = 0
+            else:
+                num_jumps_2 = 2
+            
+            for n in range(2):
+                
+                for i in self.p2_list:
+                    if move_1_row >= 0 and move_1_col >=0 and move_2_col <= 7:    
+                        if i == self.p2_grid[move_1_row][move_1_col]:
+                            num_jumps_1 = 2
+                    
+                        if i == self.p2_grid[move_2_row][move_2_col]:
+                            num_jumps_2 = 2
+                for i in reversed(self.p1_list):
+                    if move_1_row >= 0:
+                        if move_1_col >=0:
+                            if i == self.p1_grid[move_1_row][move_1_col]:
+                                move_1_col -= 1
+                                move_1_row -= 1
+                                num_jumps_1 += 1
+                        if move_2_col <= 7:
+                            if i == self.p1_grid[move_2_row][move_2_col]:
+                                move_2_col += 1
+                                move_2_row -= 1
+                                num_jumps_2 += 1
+            if num_jumps_1 <2 and move_1_col >= 0:
+                self.possible_move_grid[move_1_row][move_1_col].visible = True
+            if num_jumps_2 < 2 and move_2_col <=7:
+                self.possible_move_grid[move_2_row][move_2_col].visible = True
+
+
+
+    # def make_queen(self, index):
+        
+    #     if self.is_p1_turn:
+    #         img = PIL
+    #         text = arcade.Texture("queen", RED_QUEEN)
+    #         self.p1_list.sprite_list[index].append_texture(text)
+    #         self.p1_list.sprite_list[index].is_queen = True
+    #     else:
+    #         text = arcade.Texture("queen", TAN_QUEEN)
+    #         self.p2_list[index].append_texture(text)
+    #         self.p2_list[index].is_queen = True
+
+#  function to find the index of the piece nearest to where the click occurred. 
 def find_nearest_piece(sprite_list, column, row):
     #excessively large number
     closest_index_x = 10000
