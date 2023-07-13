@@ -3,7 +3,7 @@
 ## Description of the team project: 
 Our team project is a checkers video game built from the ground up.
 
-[Software Demo Video](http://youtube.link.goes.here)
+[Software Demo Video](https://youtu.be/PCwVwyI2lkY)
 
 # Development Environment
 - Visual Studio Code
